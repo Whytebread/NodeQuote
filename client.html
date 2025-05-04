@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quote Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .quote {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .quote-text {
+            font-style: italic;
+        }
+        .quote-source {
+            text-align: right;
+            font-weight: bold;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        select, button {
+            padding: 8px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quote Generator</h1>
+    <div class="controls">
+        <select id="topicSelect">
+            <option value="love">Love</option>
+            <option value="motivational">Motivational</option>
+            <option value="wisdom" selected>Wisdom</option>
+            <option value="humor">Humor</option>
+        </select>
+        <select id="countSelect">
+            <option value="1">1 Quote</option>
+            <option value="2">2 Quotes</option>
+            <option value="3">3 Quotes</option>
+            <option value="4">4 Quotes</option>
+            <option value="5">5 Quotes</option>
+        </select>
+        <button id="getQuotes">Get Quotes</button>
+    </div>
+    <div id="quotesContainer"></div>
+
+    <script>
+        // Get DOM elements
+        let topicSelect = document.getElementById("topicSelect");
+        let countSelect = document.getElementById("countSelect");
+        let getQuotesButton = document.getElementById("getQuotes");
+        let quotesContainer = document.getElementById("quotesContainer");
+        
+        // Add event listener to the button
+        getQuotesButton.addEventListener("click", function() {
+            // Get selected topic and count
+            let topic = topicSelect.value;
+            let count = countSelect.value;
+            
+            // Clear previous quotes
+            quotesContainer.innerHTML = "";
+            
+            // Fetch quotes from the server using deployment at render.com
+            fetch("https://nodequote.onrender.com/quotes?topic=" + topic + "&count=" + count)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(quotes) {
+                    // Display each quote
+                    for (let i = 0; i < quotes.length; i++) {
+                        let quote = quotes[i];
+                        
+                        // Create HTML for the quote
+                        let quoteDiv = document.createElement("div");
+                        quoteDiv.className = "quote";
+                        
+                        let quoteText = document.createElement("div");
+                        quoteText.className = "quote-text";
+                        quoteText.textContent = quote.quote;
+                        
+                        let quoteSource = document.createElement("div");
+                        quoteSource.className = "quote-source";
+                        quoteSource.textContent = "— " + quote.source;
+                        
+                        // Append to the quote container
+                        quoteDiv.appendChild(quoteText);
+                        quoteDiv.appendChild(quoteSource);
+                        quotesContainer.appendChild(quoteDiv);
+                    }
+                })
+                .catch(function(error) {
+                    quotesContainer.innerHTML = "<p>Error fetching quotes: " + error.message + "</p>";
+                });
+        });
+    </script>
+</body>
+</html>
